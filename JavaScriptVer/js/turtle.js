@@ -259,6 +259,7 @@ function ttl_replace_template(lines, i , content, id_index){
 				line = line.replace('ID', '<' + id + '>');
 			}
 
+			//keyにテンプレート内の[[・・・]]の箇所を抽出して格納する．
 			while(true){
 				var si = line.indexOf('[[', index);
 				var li = line.indexOf(']]', index);
@@ -270,12 +271,22 @@ function ttl_replace_template(lines, i , content, id_index){
 				}
 			}
 
+			//テンプレート内の[[・・・]]の箇所をCSVから読み込んだデータで置換する
 			var work = line;
 			for (var j=0; j<key.length; j++){
 				for (var k=0; k<header.length; k++){
-					if (header[k] == key[j]){
-						 // TODO
-						var sep = get_separator(data[l][k], '[[' + key[j] + ']]', work);
+					
+					//#kozaki keyの特殊処理をするために，配列の入ったkeyといかの処理の用のtarget_keyに分ける
+					var target_key = key[j];
+					var noNeedSep = false; //セパレーター不要（データをそのまま出力する）際のフラグ 
+					if(target_key.indexOf('+=')==0){
+						target_key = target_key.substring('+='.length);
+						noNeedSep = true;
+					}
+						
+					if (header[k] == target_key){
+						 // データを囲うセパレータを取得する
+						var sep = get_separator(data[l][k], '[[' + target_key + ']]', work);
 						var datum = data[l][k];
 
 						if (sep[0] == '<'){
@@ -290,7 +301,14 @@ function ttl_replace_template(lines, i , content, id_index){
 						} else {
 							datum =  replace_literal(datum);
 						}
-						var work_ = work.replaceAll('[[' + key[j] + ']]' , sep[0] + datum + sep[1]);
+						
+						//データの置換処理
+						if(noNeedSep){//セパレータ不要時の処理
+							sep[0] = '';
+							sep[1] = '';
+							target_key = '+='+target_key;
+						}
+						var work_ = work.replaceAll('[[' + target_key + ']]' , sep[0] + datum + sep[1]);
 
 						// データがヒットし、datumが空白、かつ、中間ノードを含まない場合はスキップ
 						if (work_ != work && datum == '' &&
