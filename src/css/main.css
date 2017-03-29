@@ -1,0 +1,84 @@
+
+
+.block {
+	margin:10px;
+	margin-top:0px;
+	padding:10px;
+	padding-top:0px;
+  border:1px solid;
+  border-radius: 5px;
+  
+}
+
+.block2 {
+	margin:10px;
+	padding:10px;
+  border:1px solid;
+  border-radius: 5px;
+  
+}
+
+h1.header {
+	text-align: left;
+  font-size: xx-large;
+  font-weight:bold;
+  font-style:normal;
+  color: #00008c;
+}
+
+h2.block_head  {
+	text-align: left;
+  font-size: x-large;
+  font-weight:bold;
+  font-style:normal;
+  color: #808080;
+}
+
+h3.block_head2 {
+    text-decoration:underline;
+  font-size: large;
+  font-weight: bold;
+    
+}
+
+table {
+  width: 100%;
+	border-collapse: collapse;
+}
+
+table th{
+padding: 2px;
+text-align: center;
+vertical-align: top;
+color: #333;
+background-color: #eee;
+border: 1px solid #b9b9b9;
+}
+
+table td {
+    padding: 2px;
+background-color: #fff;
+border: 1px solid #b9b9b9;
+
+}
+
+textarea.output {
+	width:60em;
+	height:20em;
+}
+
+input[type="text"] {
+	width:40em;    
+
+}
+
+input#bp_name {
+	margin:0px;
+	padding:0px;
+	width:99%;
+}
+
+textarea#free_prefix {
+	width:60em;
+	height:10em;
+}

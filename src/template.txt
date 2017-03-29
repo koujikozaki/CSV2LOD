@@ -1,0 +1,16 @@
+@base <http://example.com/> .
+@prefix bp: <http://example.com/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema> .
+@prefix cc: <http://creativecommons.org/ns#> .
+@prefix ic: <http://imi.ipa.go.jp/ns/core/rdf#> .
+##ID=AUTO
+##cc:attributionName=test
+##cc:license=http://creativecommons.org/licenses/by/4.0/
+##mapping-rules-start
+ID  rdfs:label [[項目名１]]@ja ;
+  ic:座標 [ic:緯度  [[項目緯度２]]^^xsd:String ;
+        ic:経度  [[項目経度３]]^^xsd:String] .
+##mapping-rules-end
