@@ -4,7 +4,7 @@
  */
 var namespace_data =
 [
-	{ "name" : "Schema.org", "short" : "schma" , "namespace" : "http://schema.org/" },
+	{ "name" : "Schema.org", "short" : "schema" , "namespace" : "http://schema.org/" },
 	{ "name" : "IPA共通語彙基盤", "short" : "ic" , "namespace" : "http://imi.go.jp/ns/core/rdf#" },
 	{ "name" : "ダブリンコア(DC)", "short" : "dc" , "namespace" : "http://purl.org/dc/elements/1.1/" },
 	{ "name" : "DCタームズ", "short" : "dcterms" , "namespace" : "http://purl.org/dc/terms/" },
