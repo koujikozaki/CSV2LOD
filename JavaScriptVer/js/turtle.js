@@ -109,7 +109,7 @@ function turtle_convert(template){
 	//alert(contents[contents.length-2]);
 
 	$.each(contents, function(i,v){
-		console.log(v.ttl);
+		//console.log(v.ttl);
 		var _contents = v.ttl.split('\n');
 		if (_contents[_contents.length-2].indexOf(';') == (_contents[_contents.length-2].length-1)){
 			_contents[_contents.length-2] = _contents[_contents.length-2].substring(0,_contents[_contents.length-2].length-1) + '.';
@@ -384,8 +384,8 @@ function ttl_replace_template(lines, i , content, id_index){
 			}
 		}
 		if (work_id != null && typeof works !== "undefined" && works.length > 0) {
-			console.log(work_id);
-			console.log(works);
+			//console.log(work_id);
+			//console.log(works);
 			content.push({"id":work_id,"ttl":works});
 		}
 	}
