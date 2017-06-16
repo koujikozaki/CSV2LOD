@@ -2,6 +2,8 @@
 //var index_id = '';
 var id_index = -1;
 
+var base_uri = "";
+
 $(window).load(function() {
 	$('#ttl_make').click(function(event){
 		var contents = $('#rdf_template').val();
@@ -30,8 +32,9 @@ String.prototype.replaceAll = function (org, dest){
 
 function turtle_convert(template){
 	var header = [];
-	var contents = [];
 	var prefix = [];
+	var common = [];
+	var contents = [];
 
 	if (template == null || template.trim() == ''){
 		alert('テンプレートを作成もしくは読み込んでください');
@@ -71,7 +74,8 @@ function turtle_convert(template){
 		if (line.indexOf('@prefix') == 0){
 			prefix.push(line);
 		} else {
-			contents.push(line);
+			//contents.push(line);
+			common.push(line);
 		}
 	}
 
@@ -86,7 +90,12 @@ function turtle_convert(template){
 			}
 
 			// コマンド行
-			header.push(ttl_replace_command(line, contents.join('\n'), header.join('\n'), prefix));
+			//header.push(ttl_replace_command(line, contents.join('\n'), header.join('\n'), prefix));
+			var _contents = [];
+			$.each(contents,function(i,v){
+				_contents.push(v.ttl);
+			});
+			header.push(ttl_replace_command(line, _contents.join('\n'), header.join('\n'), prefix));
 			continue;
 		}
 
@@ -94,13 +103,45 @@ function turtle_convert(template){
 
 	//#kozaki 2016/08/22 最後行の最終列が「空」のとき，「.」でなく「;」で終わるバグを修正
 	//alert(contents[contents.length-2]);
-	if (contents[contents.length-2].indexOf(';') == (contents[contents.length-2].length-1)){
-		contents[contents.length-2] = contents[contents.length-2].substring(0,contents[contents.length-2].length-1) + '.';
-	}
+//	if (contents[contents.length-2].indexOf(';') == (contents[contents.length-2].length-1)){
+//		contents[contents.length-2] = contents[contents.length-2].substring(0,contents[contents.length-2].length-1) + '.';
+//	}
 	//alert(contents[contents.length-2]);
 
+	$.each(contents, function(i,v){
+		//console.log(v.ttl);
+		var _contents = v.ttl.split('\n');
+		if (_contents[_contents.length-2].indexOf(';') == (_contents[_contents.length-2].length-1)){
+			_contents[_contents.length-2] = _contents[_contents.length-2].substring(0,_contents[_contents.length-2].length-1) + '.';
+			v.ttl = _contents.join("\n");
+		}
+	});
 
-	return header.join('\n') + contents.join('\n');
+	//return header.join('\n') + contents.join('\n');
+
+	//
+	// SimpleLODIモード(ファイル分割モード)
+	//
+	if ($('input[name="template_base_pfx"]:checked').val() == 'slodi'){
+		var ttls = [];
+		var zip = new JSZip();
+		$.each(contents, function(i,v){
+			zip.file(v.id+".ttl", header.join('\n')+v.ttl);
+		});
+		zip.generateAsync({type:"blob"})
+		.then(function (blob) {
+	    	saveAs(blob, "dataset.ttl.zip");
+		});
+	}
+
+	// テキストフォーム出力用
+	var _contents = [];
+	$.each(contents,function(i,v){
+		_contents.push(v.ttl);
+	});
+	// テキストフォーム出力用
+	return header.join('\n')+common.join('\n')+_contents.join("\n");
+
 }
 
 function is_mapping_splitter(line, isstart){
@@ -170,6 +211,7 @@ function ttl_replace_command(line, contents, header, prefix){
 //		content += '@prefix bp: <' + baseprop + '> .\n';
 		//content += '@prefix bp: <' + base + '> .\n';
 		content += ttl_make_prefix(contents, prefix);
+		base_uri = base;
 	}
 
 	return content;
@@ -233,6 +275,8 @@ function ttl_replace_template(lines, i , content, id_index){
 
 	for (var l=1; l<data.length; l++){
 		var key = [];
+		var works = "";
+		var work_id;
 		for (var n=i; n<lines.length; n++){
 			var index = 0;
 			var line = lines[n];
@@ -241,8 +285,10 @@ function ttl_replace_template(lines, i , content, id_index){
 			}
 			if (line.indexOf('##') >= 0){
 				if (content.length > 0){
-					if (content[content.length-1].indexOf(';') == (content[content.length-1].length-1)){
-						content[content.length-1] = content[content.length-1].substring(0,content[content.length-1].length-1) + '.';
+//					if (content[content.length-1].indexOf(';') == (content[content.length-1].length-1)){
+//						content[content.length-1] = content[content.length-1].substring(0,content[content.length-1].length-1) + '.';
+					if (content[content.length-1].ttl.indexOf(';') == (content[content.length-1].ttl.length-1)){
+						content[content.length-1].ttl = content[content.length-1].ttl.substring(0,content[content.length-1].length-1) + '.';
 					}
 				}
 				continue;
@@ -256,10 +302,12 @@ function ttl_replace_template(lines, i , content, id_index){
 					id = data[l][id_index];
 					id = replace_uri(id);
 				}
+				work_id = id;
 				line = line.replace('ID', '<' + id + '>');
 			}
 
 			//keyにテンプレート内の[[・・・]]の箇所を抽出して格納する．
+			/*
 			while(true){
 				var si = line.indexOf('[[', index);
 				var li = line.indexOf(']]', index);
@@ -269,6 +317,12 @@ function ttl_replace_template(lines, i , content, id_index){
 				} else {
 					break;
 				}
+			}
+			*/
+			// 上記コードを正規表現に置き換え
+			var r = /\[\[(.+?)\]\]/g;
+			while ((m = r.exec(line)) != null) {
+  				key.push(m[1]);
 			}
 
 			//テンプレート内の[[・・・]]の箇所をCSVから読み込んだデータで置換する
@@ -322,9 +376,17 @@ function ttl_replace_template(lines, i , content, id_index){
 					}
 				}
 			}
-			if (work != ''){
-				content.push(work);
+			//if (work != ''){
+			//	content.push(work);
+			//}
+			if (work.length>0){
+				works += work+"\n";
 			}
+		}
+		if (work_id != null && typeof works !== "undefined" && works.length > 0) {
+			//console.log(work_id);
+			//console.log(works);
+			content.push({"id":work_id,"ttl":works});
 		}
 	}
 
